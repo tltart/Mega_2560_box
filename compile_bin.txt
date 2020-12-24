@@ -1,0 +1,1 @@
+avr-objcopy.exe -I ihex C:\Users\sokol\Documents\PlatformIO\Projects\Mega_2560_box\.pio\build\megaatmega2560\firmware.hex -O binary C:\Users\sokol\Documents\PlatformIO\Projects\Mega_2560_box\.pio\build\megaatmega2560\firmware.bin
