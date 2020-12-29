@@ -1,0 +1,6 @@
+TEMP_TOPIC        "box/temp/tec"
+TEMP_TEC_STATUS   "box/temp/tec/status"
+TEMP_TOPIC_2      "box/temp/fan"
+
+#define PULT_STATE        "box/pult_status"
+#define POWER_PULT        "power/pult"

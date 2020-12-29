@@ -2,9 +2,11 @@
 
 int tec_mode = -1;
 
-byte buffer_registr = 0b00000000;
+unsigned long start_home;
 
-byte off_all        = 0b00000000;
+byte buffer_registr = 0b00111000;
+
+byte off_all        = 0b00111000;
 byte tec_mode_cold  = 0b11000000;
 byte tec_mode_heat  = 0b10000000;
 byte pult_home_pin  = 0b00100000;
@@ -62,34 +64,47 @@ void Registor::TecOn(int tec_mode)
 
 void Registor::PultHome()
 {       
-        Serial.println("Нажали ДОМОЙ");
-        buffer_registr = buffer_registr | pult_home_pin;
+        // Serial.println("Нажали ДОМОЙ");
+        buffer_registr ^= pult_home_pin;
         digitalWrite(clatch_pin, LOW);                                     
         shiftOut(data_pin, clock_pin, LSBFIRST, buffer_registr); 
         digitalWrite(clatch_pin, HIGH);
-        buffer_registr = buffer_registr ^ pult_home_pin;
+        delay(3000);
+        buffer_registr |= pult_home_pin;
+        digitalWrite(clatch_pin, LOW);                                     
+        shiftOut(data_pin, clock_pin, LSBFIRST, buffer_registr); 
+        digitalWrite(clatch_pin, HIGH);
         Serial.println("Отпустили ДОМОЙ");
+
 }
 
 void Registor::L1()
 {
         Serial.println("Нажали L1");
-        buffer_registr = buffer_registr | pult_L1_pin;
+        buffer_registr ^= pult_L1_pin;
         digitalWrite(clatch_pin, LOW);                                     
         shiftOut(data_pin, clock_pin, LSBFIRST, buffer_registr); 
         digitalWrite(clatch_pin, HIGH);
-        buffer_registr = buffer_registr ^ pult_L1_pin;
+        delay(500);
+        buffer_registr |= pult_L1_pin;
+        digitalWrite(clatch_pin, LOW);                                     
+        shiftOut(data_pin, clock_pin, LSBFIRST, buffer_registr); 
+        digitalWrite(clatch_pin, HIGH);
         Serial.println("Отпустили L1");
 }
 
 void Registor::L2()
 {
         Serial.println("Нажали L2");
-        buffer_registr = buffer_registr | pult_L2_pin;
+        buffer_registr ^= pult_L2_pin;
         digitalWrite(clatch_pin, LOW);                                     
         shiftOut(data_pin, clock_pin, LSBFIRST, buffer_registr); 
         digitalWrite(clatch_pin, HIGH);
-        buffer_registr = buffer_registr ^ pult_L2_pin;
+        delay(500);
+        buffer_registr |= pult_L2_pin;
+        digitalWrite(clatch_pin, LOW);                                     
+        shiftOut(data_pin, clock_pin, LSBFIRST, buffer_registr); 
+        digitalWrite(clatch_pin, HIGH);
         Serial.println("Отпустили L2");
 }
 

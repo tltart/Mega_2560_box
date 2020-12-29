@@ -89,6 +89,21 @@ void setup() {
 
             if (varr == "pult")
           { 
+            if(vall == "1")
+            {
+              reg.L1();
+              Serial.println("L1");
+            }
+            if(vall == "2")
+            {
+              reg.L2();
+              Serial.println("L2");
+            }
+            if(vall == "h")
+            {
+              reg.PultHome();
+              Serial.println("Home!");
+            }
             if(vall == "up")
             {
               dron.Pitch(throttle_160);
@@ -215,12 +230,18 @@ void setup() {
 
 void loop() {
 
+    
+
     while (!client.connected()) 
-     {
+     {  
         ConMqtt.MqttConnect(client);
         sensors.requestTemperatures();
         Climat.TecPower_out_Mqtt(sensors, reg);
         Climat.FanSpeed_out_Mqtt(sensors, reg);
+        if (String(Ethernet.localIP()).length() < 1)
+        {
+          Ethernet.begin(mac);
+        }
      } 
      
       wss.listen();
