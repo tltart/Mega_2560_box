@@ -35,7 +35,7 @@ const char* passw = "9556";
 
 // char buffer_pult[10];
 byte           mac[] =    { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-// IPAddress      local_ip   (192,168,88,116);
+IPAddress      local_ip   (192,168,128,116);
 // IPAddress   gateway    (192,168,88,1);
 // IPAddress   subnet     (255,255,255,0);
 
@@ -60,7 +60,7 @@ void setup() {
     reg.Init();
     ConMqtt.InitPin();
 
-    Ethernet.begin(mac);
+    Ethernet.begin(mac, local_ip);
 
     server.begin();
     Serial.println(Ethernet.localIP());
@@ -238,10 +238,10 @@ void loop() {
         sensors.requestTemperatures();
         Climat.TecPower_out_Mqtt(sensors, reg);
         Climat.FanSpeed_out_Mqtt(sensors, reg);
-        if (String(Ethernet.localIP()).length() < 1)
-        {
-          Ethernet.begin(mac);
-        }
+        // if (String(Ethernet.localIP()).length() < 1)
+        // {
+        //   Ethernet.begin(mac);
+        // }
      } 
      
       wss.listen();
