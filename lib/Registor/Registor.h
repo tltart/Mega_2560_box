@@ -13,7 +13,6 @@
 extern int tec_mode;
 
 extern byte buffer_registr; 
-
 extern byte off_all;
 extern byte tec_mode_cold;
 extern byte tec_mode_heat;
