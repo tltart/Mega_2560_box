@@ -1,6 +1,5 @@
 #ifndef DRONE_H
 #define DRONE_H
-// #include <iostream>
 #include <Arduino.h>
 
 

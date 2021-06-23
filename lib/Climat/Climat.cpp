@@ -22,8 +22,8 @@ byte type_tec;                  // режим работы пельтье (1/2 �
 int sen_1_high      = 50;       // вентилятора на 100%
 int sen_1_low       = 30;       // вентилятор 40%
 
-int tempC_1;
-int tempC_1_last;
+int tempC_1;                    // температура наружнего радиатора
+int tempC_1_last;               
 int tempC_2;
 int tempC_2_last;
 int TEC_work;
@@ -211,6 +211,7 @@ void ClimatBox::FanSpeed(DallasTemperature &sensors, PubSubClient &client, Regis
       Serial.println(buffer);
       client.publish(TEMP_TOPIC_2, buffer, true);
       tempC_1_last = tempC_1;
+      JSONtxtt.clear();
     }
     if (FAN_speed_last != FAN_speed){
       JSONtxtt["FAN_speed"] = FAN_speed;
@@ -218,7 +219,8 @@ void ClimatBox::FanSpeed(DallasTemperature &sensors, PubSubClient &client, Regis
       Serial.println(buffer);
       client.publish(TEMP_TOPIC_2, buffer, true);
       FAN_speed_last = FAN_speed;
+      JSONtxtt.clear();
       }
-   JSONtxtt.clear();
+   
     
   }
