@@ -8,9 +8,9 @@
 #include <MqttClient.h>
 #include <Registor.h>
 
-#define ONE_WIRE_BUS 11  // D11
+#define ONE_WIRE_BUS 16  // D16
 
-#define FAN          3   // D3
+#define FAN          11   // D11
 
 #define TEMP_TOPIC        "box/temp/tec"
 #define TEMP_TEC_STATUS   "box/temp/tec/status"

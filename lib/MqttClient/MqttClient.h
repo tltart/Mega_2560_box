@@ -8,8 +8,8 @@
 #include <ServoSmooth.h>
 
 
-#define pult                    A1   // A1
-#define pult_state              A0   // A0
+#define pult                    13   // D13
+#define pult_state              15   // D15
 
 extern int late_state_pult;
 

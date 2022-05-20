@@ -3,7 +3,7 @@
 Servomotor::Servomotor(){}
 
 void Servomotor::Init(ServoSmooth &servo){
-  servo.attach(12, 1500, 2000);
+  servo.attach(5, 1500, 2000);
   servo.setSpeed(10);
   servo.setAccel(0.3);
   servo.setAutoDetach(false);
