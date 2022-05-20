@@ -61,61 +61,6 @@ void ConnectMqtt::InitMqtt(PubSubClient &client)
   client.setCallback(receivedCallback);
 }
 
-// void receivedCallback(char *topic, byte *payload, unsigned int length)
-// {
-
-//   if (String(topic) == POWER_PULT)
-//   {
-//     for (int i = 0; i < length; i++)
-//     {
-//       buffer_pult_1[i] = ((char)payload[i]);
-//       // Serial.println(String(buffer_pult_1));
-//     }
-
-//     if (String(buffer_pult_1) == "ON")
-//     {
-//       Serial.println("Включение пульта...");
-//       on_pult();
-//     }
-//     else if (String(buffer_pult_1) == "OFF")
-//     {
-//       Serial.println("Выключение пульта...");
-//       off_pult();
-//     }
-//     else if (String(buffer_pult_1) == "RES")
-//     {
-//       Serial.println("Перезагрузка пульта...");
-//       off_pult();
-//       delay(5000);
-//       on_pult();
-//     }
-//     memset(buffer_pult_1, 0, 30);
-//   }
-//   else if (String(topic) == ANTENN)
-//   {
-//     for (int i = 0; i < length; i++)
-//     {
-//       buffer_antenn[i] = ((char)payload[i]);
-//     }
-//     if (String(buffer_antenn) == "NORTH")
-//     {
-
-//     }
-//     else if (String(buffer_antenn) == "EAST")
-//     {
-      
-//     }
-//     else if (String(buffer_antenn) == "SOUTH")
-//     {
-
-//     }
-//     else if (String(buffer_antenn) == "WEST")
-//     {
-      
-//     }
-//     memset(buffer_antenn, 0, 20);
-//   }
-// }
 void ConnectMqtt::MqttConnect(PubSubClient &client)
 {
   /* Loop until reconnected */

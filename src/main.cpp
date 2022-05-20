@@ -35,8 +35,8 @@ const char *sokol = "sokol";
 const char *passw = "9556";
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-// IPAddress      local_ip   (192,168,128,116);
-IPAddress local_ip(192, 168, 128, 116);
+IPAddress      local_ip   (192,168,128,116);
+// IPAddress local_ip(192, 168, 88, 155);
 
 EthernetClient espClient;
 PubSubClient client(espClient);
