@@ -1,47 +1,13 @@
 #include <MqttClient.h>
-#include <Servomotor.h>
 
-const char *mqtt_server = "192.168.128.115";
+const char *mqtt_server = "192.168.89.115";
 
 StaticJsonDocument<30> JSON_pult;
-StaticJsonDocument<30> JSON_antenn;
 
 char buffer_pult[30];
 char buffer_pult_1[30];
 int late_state_pult = -1;
-char buffer_antenn[40];
 
-
-// void on_pult()
-// {
-//   Serial.println("Вызвана функция включения пульта");
-//   Serial.println("1 нажатие");
-//   digitalWrite(pult, HIGH);
-//   delay(500);
-//   digitalWrite(pult, LOW);
-//   Serial.println("Кнопка отпущена...");
-//   delay(400);
-//   Serial.println("2 нажатие");
-//   digitalWrite(pult, HIGH);
-//   delay(3000);
-//   digitalWrite(pult, LOW);
-//   Serial.println("Отущена после длительного нажатия");
-// }
-// void off_pult()
-// {
-//   Serial.println("Вызвана функция выключения пульта");
-//   Serial.println("1 нажатие");
-//   digitalWrite(pult, HIGH);
-//   delay(300);
-//   digitalWrite(pult, LOW);
-//   Serial.println("Кнопка отпущена...");
-//   delay(600);
-//   Serial.println("2 нажатие");
-//   digitalWrite(pult, HIGH);
-//   delay(3000);
-//   digitalWrite(pult, LOW);
-//   Serial.println("Отущена после длительного нажатия");
-// }
 
 ConnectMqtt::ConnectMqtt()
 {
@@ -69,26 +35,23 @@ void ConnectMqtt::MqttConnect(PubSubClient &client)
     Serial.print("MQTT connecting ...");
     /* client ID */
     String clientId = "D1_mini_box";
-    const char *sokol = "sokol";
+    const char *login = "nanopi";
     const char *passw = "9556";
 
     /* connect now */
-    if (client.connect(clientId.c_str(), sokol, passw))
+    if (client.connect(clientId.c_str(), login, passw))
     {
       Serial.println("connected");
       client.subscribe(POWER_PULT);
-      client.subscribe(ANTENN);
-
-      /* subscribe topic with default QoS 0*/
     }
   }
 }
 
 void ConnectMqtt::SendPultState(PubSubClient &client)
 {
-  int val_volt = analogRead(pult_state);
+  int val_volt = digitalRead(pult_state);
 
-  if (val_volt > 200 && late_state_pult != 1)
+  if (!val_volt && late_state_pult != 1)
   {
     JSON_pult["Pult_status"] = "1";
     serializeJsonPretty(JSON_pult, buffer_pult);
@@ -96,7 +59,7 @@ void ConnectMqtt::SendPultState(PubSubClient &client)
     late_state_pult = 1;
     JSON_pult.clear();
   }
-  if (val_volt < 50 && late_state_pult != 0)
+  if (val_volt && late_state_pult != 0)
   {
     JSON_pult["Pult_status"] = "0";
     serializeJsonPretty(JSON_pult, buffer_pult);
@@ -104,11 +67,4 @@ void ConnectMqtt::SendPultState(PubSubClient &client)
     late_state_pult = 0;
     JSON_pult.clear();
   }
-}
-void ConnectMqtt::SendAntennState(PubSubClient &client, String _send)
-{
-  JSON_antenn["STATUS"] = _send;
-  serializeJsonPretty(JSON_antenn, buffer_antenn);
-  client.publish(ANTENN_STATUS, buffer_antenn, true);
-  JSON_antenn.clear();
 }

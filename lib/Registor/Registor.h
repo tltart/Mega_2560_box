@@ -5,9 +5,9 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#define data_pin   2    //  D2
-#define clatch_pin 4    //  D4
-#define clock_pin  5    //  D5
+#define data_pin   6    //  D2
+#define clatch_pin 8    //  D4
+#define clock_pin  12    //  D5
 
 
 extern int tec_mode;

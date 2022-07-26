@@ -1,14 +1,11 @@
 #include <Arduino.h>
-#include <DallasTemperature.h>
 #include <Ethernet.h>
 #include <WebSocketServer.h>
 #include <PubSubClient.h>
 #include <SPI.h>
 #include <Drone.h>
 #include <MqttClient.h>
-#include <Climat.h>
-#include <ServoSmooth.h>
-#include <Servomotor.h>
+#include <Registor.h>
 
 using namespace net;
 
@@ -17,60 +14,38 @@ String vall;
 
 unsigned long start;
 unsigned long start_1;
-
+unsigned long mqtt_reconnect_time;
 String JSONtxt;
 Drone dron;
 ConnectMqtt ConMqtt;
-ClimatBox Climat;
 Registor reg;
 
-ServoSmooth servo;
-Servomotor servomotor;
-
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);
-
-String clientId = "D1_mini_box";
-const char *sokol = "sokol";
-const char *passw = "9556";
-
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-IPAddress      local_ip   (192,168,128,116);
-// IPAddress local_ip(192, 168, 88, 155);
+IPAddress      local_ip   (192,168,89,116);
+// IPAddress local_ip(192, 168, 128, 116);
 
-EthernetClient espClient;
-PubSubClient client(espClient);
+EthernetClient arduinoClient;
+PubSubClient client(arduinoClient);
 EthernetServer server(80);
 
-constexpr uint16_t port = 3000;
+uint16_t port = 3000;
 WebSocketServer wss(port);
 
-////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////
 ////////////////----MQTT----////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////
 void receivedCallback(char *topic, byte *payload, unsigned int length);
 void on_pult();
 void off_pult();
-void ToPosition(ServoSmooth &servo, int newPos);
-void StartPosition(ServoSmooth &servo);
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
+
 void setup()
 {
-  sensors.begin();
   Serial.begin(115200);
   Serial.println("Setup");
 
   SPI.begin();
 
-  servomotor.Init(servo);
-
   dron.pinInit();
   dron.PultInit();
 
-  Climat.InitPin();
   reg.Init();
   ConMqtt.InitPin();
 
@@ -79,14 +54,10 @@ void setup()
   server.begin();
   Serial.println(Ethernet.localIP());
 
-  // ConMqtt.InitMqtt(client);
-  //////////////////////////////////////////////////////
   /////-----------MQTT-------------------//////////////
-  /////////////////////////////////////////////////////
   client.setServer(mqtt_server, 1883);
   client.setCallback(receivedCallback);
-  ////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////
+  ConMqtt.MqttConnect(client);
 
   wss.onConnection([](WebSocket &ws)
                    {
@@ -177,14 +148,14 @@ void setup()
                                           dron.Throttle(throttle_25);
                                           Serial.println("Быстро вниз!");
                                         }
-                                        if (vall == "a")
-                                        {
-                                          dron.Yaw(throttle_80);
-                                          Serial.println("Ось влево!");
-                                        }
                                         if (vall == "d")
                                         {
-                                          dron.Yaw(throttle_180);
+                                          dron.Yaw(throttle_90);
+                                          Serial.println("Ось влево!");
+                                        }
+                                        if (vall == "a")
+                                        {
+                                          dron.Yaw(throttle_170);
                                           Serial.println("Ось вправо!");
                                         }
                                         if (vall == "r")
@@ -229,43 +200,27 @@ void setup()
                    });
 
   wss.begin();
-
-  client.setServer(mqtt_server, 1883);
-  client.setCallback(receivedCallback);
 }
 
 void loop()
 {
 
-  while (!client.connected())
+  if (!client.connected() && millis() - mqtt_reconnect_time > 5000)
   {
     ConMqtt.MqttConnect(client);
-    sensors.requestTemperatures();
-    Climat.TecPower_out_Mqtt(sensors, reg);
-    Climat.FanSpeed_out_Mqtt(sensors, reg);
+    mqtt_reconnect_time = millis();
   }
-
-  wss.listen();
-  client.loop();
-
-  if (millis() - start > 10000)
+  if(client.connected())
   {
-    start = millis();
-    sensors.requestTemperatures();
-    Climat.TecPower(sensors, client, reg);
-    Climat.FanSpeed(sensors, client, reg);
+    client.loop();
+    ConMqtt.SendPultState(client);
   }
-
-  ConMqtt.SendPultState(client);
-  servomotor.Loop(servo);
+  wss.listen();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-/////////////----MQTT----//////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
+/////////////----MQTT----///////////////
 void receivedCallback(char *topic, byte *payload, unsigned int length)
 {
-
   if (String(topic) == POWER_PULT)
   {
     for (int i = 0; i < length; i++)
@@ -293,86 +248,29 @@ void receivedCallback(char *topic, byte *payload, unsigned int length)
     }
     memset(buffer_pult_1, 0, 30);
   }
-  else if (String(topic) == ANTENN)
-  {
-    for (int i = 0; i < length; i++)
-    {
-      buffer_antenn[i] = ((char)payload[i]);
-    }
-    if (String(buffer_antenn) == "N")
-    {
-      ToPosition(servo, 1850);
-    }
-    if (String(buffer_antenn) == "NE")
-    {
-      ToPosition(servo, 1975);
-    }
-    if (String(buffer_antenn) == "NW")
-    {
-      ToPosition(servo, 1675);
-    }
-    else if (String(buffer_antenn) == "E")
-    {
-      ToPosition(servo, 2100);
-    }
-    else if (String(buffer_antenn) == "S")
-    {
-      ToPosition(servo, 1150);
-    }
-    else if (String(buffer_antenn) == "SE")
-    {
-      ToPosition(servo, 900);
-    }
-    else if (String(buffer_antenn) == "SW")
-    {
-      ToPosition(servo, 1325);
-    }
-    else if (String(buffer_antenn) == "W")
-    {
-      ToPosition(servo, 1500);
-    }
-    ConMqtt.SendAntennState(client, String(buffer_antenn));
-    memset(buffer_antenn, 0, 40);
-  }
 }
 
-void ToPosition(ServoSmooth &servo, int newPos)
-{
-  servo.setTarget(newPos);
-};
-void StartPosition(ServoSmooth &servo)
-{
-  servo.setTarget(1500);
-};
 void off_pult()
 {
   Serial.println("Вызвана функция выключения пульта");
-  Serial.println("1 нажатие");
   digitalWrite(pult, HIGH);
   delay(300);
   digitalWrite(pult, LOW);
-  Serial.println("Кнопка отпущена...");
   delay(600);
-  Serial.println("2 нажатие");
   digitalWrite(pult, HIGH);
   delay(3000);
   digitalWrite(pult, LOW);
-  Serial.println("Отущена после длительного нажатия");
 }
 void on_pult()
 {
   Serial.println("Вызвана функция включения пульта");
-  Serial.println("1 нажатие");
   digitalWrite(pult, HIGH);
   delay(500);
   digitalWrite(pult, LOW);
-  Serial.println("Кнопка отпущена...");
   delay(400);
-  Serial.println("2 нажатие");
   digitalWrite(pult, HIGH);
   delay(3000);
   digitalWrite(pult, LOW);
-  Serial.println("Отущена после длительного нажатия");
 }
 
 ///////////////////////////////////////////////////////////

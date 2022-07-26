@@ -4,8 +4,8 @@
 
 
 #define CS   7     // D7                     //// chip select
-#define clck 6     // D6                     //// clock
-#define dd   8     // D8                     //// data
+#define clck 4     // D6                     //// clock
+#define dd   9     // D8                     //// data
 
 
 extern byte resis_1;                //// address first potenciometr
